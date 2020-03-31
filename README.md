@@ -25,7 +25,6 @@ python3.6 -V
 ### Установка **Virtualenv**
 ```
 pip3 install virtualenv
-virtualenv --python=/usr/bin/python3.6 venv
 ```
 
 ***
