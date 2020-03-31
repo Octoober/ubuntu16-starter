@@ -52,7 +52,7 @@ django-admin startproject firstsite
 cd firstsite
 ```
 
-В settings.py указываем ip или домен
+В ```settings.py``` указываем ip или домен
 ```
 vim firstsite/settings.py
 
@@ -99,7 +99,7 @@ After=network.target
 [Service]
 User=root
 Group=www-data
-WorkingDirectory=/home/www/django
+WorkingDirectory=/home/www/django/firstsite
 ExecStart=/home/www/django/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/www/django/firstsite/firstsite.sock firstsite.wsgi:application
 
 [Install]
@@ -127,7 +127,7 @@ ls /home/www/django/firstsite
 
 В моём случае, всё гуд. Если у вас так же, нужно перезапустить ~~Диму~~ демона, и перезапустить gunicorn
 ```
-systemctl deamon-reload
+systemctl daemon-reload
 systemctl restart gunicorn
 ```
 
@@ -168,4 +168,19 @@ systemctl restart nginx
 
 ## Статичные файлы в Django
 
-*В процессе...*
+Поправим Nginx конфиг
+```
+vim /etc/nginx/sites-available/firstsite
+
+---
+server {
+    ...
+    location /static/ {
+       root /home/www/django/firstsite
+    }
+    location /media/ {
+        root /home/www/django/firstsite
+    }
+    ...
+}
+```
