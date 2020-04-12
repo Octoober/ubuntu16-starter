@@ -14,6 +14,16 @@ set expandtab
 ```
 Так-то лучше!
 
+### Вход по SSH ключу
+Запускаем генерацию ключа на основной машине
+```
+ssh-keygen
+```
+Копируем ключ на сервер командой. Указываем свой IP, вместо 0.0.0.0
+```
+ssh-copy-id root@0.0.0.0
+```
+
 
 ## Установка Python 3.6 и дополнительня фигня
 ```
@@ -52,7 +62,7 @@ django-admin startproject firstsite
 cd firstsite
 ```
 
-В settings.py указываем ip или домен
+В ```settings.py``` указываем ip или домен
 ```
 vim firstsite/settings.py
 
@@ -99,7 +109,7 @@ After=network.target
 [Service]
 User=root
 Group=www-data
-WorkingDirectory=/home/www/django
+WorkingDirectory=/home/www/django/firstsite
 ExecStart=/home/www/django/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/www/django/firstsite/firstsite.sock firstsite.wsgi:application
 
 [Install]
@@ -127,7 +137,7 @@ ls /home/www/django/firstsite
 
 В моём случае, всё гуд. Если у вас так же, нужно перезапустить ~~Диму~~ демона, и перезапустить gunicorn
 ```
-systemctl deamon-reload
+systemctl daemon-reload
 systemctl restart gunicorn
 ```
 
@@ -166,6 +176,43 @@ systemctl restart nginx
 ```
 
 
-## Статичные файлы в Django
+### Статичные файлы в Django
 
-*В процессе...*
+Поправим Nginx конфиг
+```
+vim /etc/nginx/sites-available/firstsite
+
+---
+server {
+    ...
+    location /static/ {
+       alias /home/www/django/firstsite
+    }
+    ...
+}
+```
+
+# SSL сертификат через CertBot (nginx)
+
+Официальная инструкция: https://certbot.eff.org/lets-encrypt/ubuntuxenial-nginx
+
+```
+apt-get upgrade
+apt-get install software-properties-common
+add-apt-repository universe
+add-apt-repository ppa:certbot/certbot
+apt-get update
+```
+
+Cтавим CertBot ^_^
+```
+apt-get install certbot python-certbot-nginx
+```
+
+Теперь можно запустить автоустановку
+```
+certbot --nginx
+```
+1. Цифрой выбираем необходимый домен (он ищит их в nginx.conf);
+2. Выбираем пункт 2, если хотим включить редирект на https;
+3. Perfect.
